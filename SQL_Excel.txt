@@ -1,0 +1,14 @@
+Excel.LaunchExcel.LaunchAndOpenUnderExistingProcess Path: ParameterFilePath Visible: False ReadOnly: False Instance=> ExcelInstance
+Database.Connect ConnectionString: $'''Provider=Microsoft.ACE.OLEDB.12.0;Data Source=%ParameterFilePath%;Extended Properties=\"Excel 12.0 Xml;HDR=YES\"''' Connection=> SQLConnection
+Database.ExecuteSqlStatement.Execute Connection: SQLConnection Statement: $'''SELECT * 
+FROM [Sheet1$]
+WHERE [Item] = \"GoHere\"''' Timeout: 30 Result=> QueryResult
+Database.Close Connection: SQLConnection
+Excel.CloseExcel.Close Instance: ExcelInstance
+LOOP FOREACH CurrentItem IN QueryResult
+    SET hyperlink TO CurrentItem[1]
+END
+Display.ShowMessageDialog.ShowMessageWithTimeout Title: $'''Get ready''' Message: $'''One of the awesome resource for automation is opening!!!''' Icon: Display.Icon.Information Buttons: Display.Buttons.OK DefaultButton: Display.DefaultButton.Button1 IsTopMost: False Timeout: 2 ButtonPressed=> ButtonPressed
+WebAutomation.LaunchChrome.LaunchChrome Url: hyperlink WindowState: WebAutomation.BrowserWindowState.Maximized ClearCache: False ClearCookies: False WaitForPageToLoadTimeout: 60 Timeout: 60 BrowserInstance=> Browser
+WAIT 1
+WebAutomation.CloseWebBrowser BrowserInstance: Browser
